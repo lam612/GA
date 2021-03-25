@@ -5,7 +5,10 @@ import sys
 
 from GA import GA
 
-ga = GA(1000)
+population = 1000
+generation_count = 1000
+
+ga = GA(population)
 
 ga.create()
 print("{}".format(204 * "-"))
@@ -20,14 +23,12 @@ for i in range(len(config.K)):
     idx = str(i+1)
     print('| {:^8s} | {:^12s}'.format('a' + idx, "NP_b" + idx), end='')
 print("|\n{}".format(204 * "-"))
-for i in range(1000):
+for i in range(generation_count):
     ga.evaluation()
     ga.selection()
     ga.crossover()
     ga.mutation()
-    # print('[{:>3d}] | '.format(i), end='')
-    # ga.show_optimal()
-    if i % 25 == 0:
+    if i % (generation_count / 50) == 0:
         print('[{:>3d}] | '.format(i), end='')
         ga.show_optimal()
 

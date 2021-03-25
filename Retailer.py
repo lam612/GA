@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
+import config
 
 
 class Retailer:
@@ -18,17 +19,17 @@ class Retailer:
     # theta: Lợi nhuận mở rộng
     # b: tỉ lệ thời gian tồn đọng hàng trong 1 chu kỳ của nhà bán lẻ i
 
-    def __init__(self, e_a, K, phi, uc, cp, H_b, L_b, S_b, p, e_p, a):
-        self.e_a = e_a
-        self.K = K
-        self.phi = phi
-        self.uc = uc
-        self.cp = cp
-        self.H_b = H_b
-        self.L_b = L_b
-        self.S_b = S_b
-        self.p = p
-        self.e_p = e_p
+    def __init__(self, id, a):
+        self.e_a = config.e_a[id]
+        self.K = config.K[id]
+        self.phi = config.phi[id]
+        self.uc = config.uc[id]
+        self.cp = config.cp[id]
+        self.H_b = config.H_b[id]
+        self.L_b = config.L_b[id]
+        self.S_b = config.S_b[id]
+        self.p = config.p[id]
+        self.e_p = config.e_p[id]
         self.a = a
         self.theta = 0
         self.b = 0

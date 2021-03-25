@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import math
+import config
 
 
 class Manufacturer:
@@ -18,18 +19,18 @@ class Manufacturer:
     # C: Chu kỳ bổ sung sản phẩm cho nhà bán lẻ
     # n: Chu kỳ mua nguyên liệu thô là C*n (Mảng gồm l phần tử)
 
-    def __init__(self, cm, cr, H_p, H_r, M, P, S_p, S_r, A, e_A, n, x):
-        self.cm = cm
-        self.cr = cr
-        self.H_p = H_p
-        self.H_r = H_r
-        self.M = M
-        self.P = P
-        self.S_p = S_p
-        self.S_r = S_r
+    def __init__(self, A, n, x):
+        self.cm = config.cm
+        self.cr = config.cr
+        self.H_p = config.H_p
+        self.H_r = config.H_r
+        self.M = config.M
+        self.P = config.P
+        self.S_p = config.S_p
+        self.S_r = config.S_r
+        self.e_A = config.e_A
         self.retailers = []
         self.A = A
-        self.e_A = e_A
         self.C = 0
         self.n = n
         self.x = x
@@ -166,7 +167,7 @@ class Manufacturer:
             self.H_r[j] * X * self.C**2 / 2
         return HIC_r
 
-    def caculator_C(self):
+    def calc_C(self):
         # X là tổng của Sb_i
         # Y là tổng của các nhu cầu
         X = 0
