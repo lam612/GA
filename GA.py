@@ -20,7 +20,7 @@ class GA:
 
     def calc_deman(self, a, A):
         D = 0
-        for i in range(len(a)):
+        for i in range(len(a) - 1):
             D += config.K[i] * pow(a[i], config.e_a[i]) * pow(A, config.e_A) / \
                 pow(config.p[i] / config.cp[i], config.e_p[i])
         return D
@@ -36,6 +36,10 @@ class GA:
 
     def _get_rts_ads(self, mf_id):
         return [rt.a for rt in self.manufacturers[mf_id].retailers]
+
+    def _set_rts_ads(self, mf_id, ads):
+        for idx, retailer in enumerate(self.manufacturers[mf_id].retailers):
+            retailer.a = ads[idx]
 
     def create(self):
         for i in range(self.population):
@@ -98,36 +102,22 @@ class GA:
             mf_R_chomo = self._get_rts_ads(
                 mf_R)
             mf_R_chomo.append(self.manufacturers[mf_R].A)
+            mf_LR_chomo = np.matrix([mf_L_chomo, mf_R_chomo])
 
             for i in range(2):
-                new_mf_chomo
-                for j in range(config.H_r):
+                new_mf_chomo = []
+                for j in range(len(config.H_r)):
                     mf_LR_chomo = np.matrix([mf_L_chomo, mf_R_chomo])
-                    sieve = np.random.randint(2, size=(2, 6))
+                    sieve = np.random.randint(2, size=6)
                     not_sieve = sieve ^ 1
-                    new_mf_chomo = mf_L_chomo * sieve + mf_L_chomo * not_sieve
-                    if self.calc_deman(new_mf_chomo[0], new_mf_chomo[1:]) < config.P:
+                    tmp_chomo = [mf_L_chomo[i] * sieve[i] +
+                                 mf_R_chomo[i] * not_sieve[i] for i in range(6)]
+                    if self.calc_deman(tmp_chomo[1:], tmp_chomo[0]) < config.P:
+                        new_mf_chomo = tmp_chomo
                         break
-                self.manufacturers[new_mf_list[i]].A,  = new_mf_chomo
-
-            mf_L, mf_R = new_mf_list[0], new_mf_list[1]
-
-            # # crossover A
-            # if random.randrange(2) == 1:
-            #     self.manufacturers[mf_L].A, self.manufacturers[
-            #         mf_R].A = self.manufacturers[mf_R].A, self.manufacturers[mf_L].A
-            #     if (self._get_demand(mf_L) > config.P or self._get_demand(mf_R) > config.P):
-            #         self.manufacturers[mf_L].A, self.manufacturers[
-            #             mf_R].A = self.manufacturers[mf_R].A, self.manufacturers[mf_L].A
-
-            # # crossover a
-            # for j in range(len(config.e_a)):
-            #     if random.randrange(2) == 1:
-            #         self.manufacturers[mf_L].retailers[j].a, self.manufacturers[mf_R].retailers[
-            #             j].a = self.manufacturers[mf_R].retailers[j].a, self.manufacturers[mf_L].retailers[j].a
-            #         if (self._get_demand(mf_L) > config.P or self._get_demand(mf_R) > config.P):
-            #             self.manufacturers[mf_L].retailers[j].a, self.manufacturers[mf_R].retailers[
-            #                 j].a = self.manufacturers[mf_R].retailers[j].a, self.manufacturers[mf_L].retailers[j].a
+                self.manufacturers[new_mf_list[i]
+                                   ].A = new_mf_chomo[0]
+                self._set_rts_ads(new_mf_list[i], new_mf_chomo[1:])
 
             self.manufacturers[mf_L].calc_C()
             self.manufacturers[mf_R].calc_C()
