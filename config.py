@@ -23,3 +23,18 @@ e_p = [1.2, 1.3, 1.4, 1.5, 1.6]  # Độ co giãn giá của nhà bán lẻ
 S_b = [100, 102, 105, 107, 110]  # Chi phí cố định bổ sung cho nhà bán lẻ i
 H_b = [8, 12, 16, 20, 24]  # Chi phí giữ hàng phía nhà bán lẻ i
 L_b = [500, 505, 510, 520, 525]  # Backorder cost của nhà bán lẻ i
+
+M_len = len(M)
+R_len = len(e_a)
+
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'

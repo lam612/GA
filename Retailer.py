@@ -33,6 +33,7 @@ class Retailer:
         self.a = a
         self.theta = 0
         self.b = 0
+        self.calculator_b()
 
     # get_demand: Tính nhu cầu sản phẩm trên mỗi đơn vị thời gian của nhà bán lẻ
     def get_demand(self, A, e_A):

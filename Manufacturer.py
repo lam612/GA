@@ -50,7 +50,7 @@ class Manufacturer:
     def get_rt_total_profit(self):
         return sum([self.get_rt_profit(id) for id in range(len(self.retailers))])
 
-    def get_model_profit(self):
+    def get_total_profit(self):
         return self.get_mf_profit() + self.get_rt_total_profit()
 
     def get_model_demand(self):
@@ -193,8 +193,8 @@ class Manufacturer:
             Z += self.S_r[j] / self.n[j]
 
         if self.x == 1:
-            C_1 = 2 * (X + self.S_p + Z) / (H1*Y)
+            C_1 = 2 * (X + self.S_p + Z) / (H1 * Y)
             self.C = math.sqrt(C_1)
-        elif x == 0:
-            C_2 = 2*(X + Z) / (H2*P)
+        elif self.x == 0:
+            C_2 = 2*(X + Z) / (H2 * config.P)
             self.C = math.sqrt(C_2)
