@@ -2,6 +2,7 @@
 import numpy as np
 import math
 import config
+import random
 
 
 class Manufacturer:
@@ -19,7 +20,7 @@ class Manufacturer:
     # C: Chu kỳ bổ sung sản phẩm cho nhà bán lẻ
     # n: Chu kỳ mua nguyên liệu thô là C*n (Mảng gồm l phần tử)
 
-    def __init__(self, A, n, x):
+    def __init__(self, A=int, n=int, x=int, max_AS=0.5):
         self.cm = config.cm
         self.cr = config.cr
         self.H_p = config.H_p
@@ -30,14 +31,21 @@ class Manufacturer:
         self.S_r = config.S_r
         self.e_A = config.e_A
         self.retailers = []
-        self.A = A
         self.C = 0
         self.n = n
         self.x = x
+        self.max_revenue = config.P * max(config.cp)
+        self.max_A = self.max_revenue * max_AS
+        self.set_A(A)
 
     # Thêm các nhà bán lẻ vào retailers
     def add_retailer(self, retailer):
         self.retailers.append(retailer)
+
+    # Set giá trị cho chi phí quảng cáo của nhà sản xuất
+    def set_A(self, A):
+        self.A = min(random.randrange(1, self.max_A), A)
+        # self.A = A
 
     # Lợi nhuận NP_M = Tổng thu TR_M - Tổng chi TC_M
     def get_mf_profit(self):

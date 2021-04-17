@@ -17,7 +17,8 @@ K = [27, 30, 31, 33, 37]  # Quy mô thị trường của nhà bán lẻ i
 phi = [7, 10, 13, 16, 19]  # Chi phí vận chuyển cho nhà bán lẻ i
 # Nhà sản xuất quản lý hàng tồn kho của nhà bán lẻ i và lấy chi phí uci với mỗi sản phẩm
 uc = [10, 13, 18, 21, 25]
-cp = [200, 202.4, 204.8, 207.2, 209.6]  # Giá mua 1 sản phẩm từ nhà bán lẻ i
+# Giá bán 1 sản phẩm cho nhà bán lẻ thứ iz
+cp = [200, 202.4, 204.8, 207.2, 209.6]
 p = [300, 303.2, 305.1, 307.5, 310]  # Giá bán sản phẩm của nhà bán lẻ i
 e_p = [1.2, 1.3, 1.4, 1.5, 1.6]  # Độ co giãn giá của nhà bán lẻ
 S_b = [100, 102, 105, 107, 110]  # Chi phí cố định bổ sung cho nhà bán lẻ i

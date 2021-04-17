@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import config
+import random
 
 
 class Retailer:
@@ -10,7 +11,7 @@ class Retailer:
     # K: Quy mô thị trường của nhà bán lẻ i
     # phi: Chi phí vận chuyển cho nhà bán lẻ i
     # uc: Nhà sản xuất quản lý hàng tồn kho của nhà bán lẻ i và lấy chi phí uci với mỗi sản phẩm
-    # cp: Giá mua 1 sản phẩm từ nhà bán lẻ i
+    # cp: Giá bán 1 sản phẩm cho nhà bán lẻ thứ i
     # H_b: Chi phí giữ hàng phía nhà bán lẻ i
     # L_b: Backorder cost của nhà bán lẻ i
     # S_b: Chi phí cố định bổ sung cho nhà bán lẻ i
@@ -19,7 +20,7 @@ class Retailer:
     # theta: Lợi nhuận mở rộng
     # b: tỉ lệ thời gian tồn đọng hàng trong 1 chu kỳ của nhà bán lẻ i
 
-    def __init__(self, id, a):
+    def __init__(self, id=int, a=int, max_AS=0.5):
         self.e_a = config.e_a[id]
         self.K = config.K[id]
         self.phi = config.phi[id]
@@ -30,9 +31,11 @@ class Retailer:
         self.S_b = config.S_b[id]
         self.p = config.p[id]
         self.e_p = config.e_p[id]
-        self.a = a
         self.theta = 0
         self.b = 0
+        self.max_revenue = self.K * self.p
+        self.max_a = self.max_revenue * max_AS
+        self.set_a(a)
         self.calculator_b()
 
     # get_demand: Tính nhu cầu sản phẩm trên mỗi đơn vị thời gian của nhà bán lẻ
@@ -52,3 +55,7 @@ class Retailer:
 
     def calculator_b(self):
         self.b = self.H_b / (self.H_b + self.L_b)
+
+    def set_a(self, a):
+        self.a = min(self.max_a, a)
+        # self.a = a

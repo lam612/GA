@@ -8,12 +8,12 @@ from copy import deepcopy
 
 
 class GA:
-    def __init__(self, population):
+    def __init__(self, pl_size=1000, selection_rate=0.8, crossover_rate=0.8, mutation_rate=0.3):
         self.manufacturers = []
-        self.population = population
-        self.p_selection = 0.8
-        self.p_crossover = 0.2
-        self.p_mutation = 0.3
+        self.population = pl_size
+        self.p_selection = selection_rate
+        self.p_crossover = crossover_rate
+        self.p_mutation = mutation_rate
         self.profit_list = [0] * self.population
         self.H = 400000
         self.optimal = {}
@@ -81,8 +81,8 @@ class GA:
         self.evaluation()
         crossed_profit = self.populations_profit
         bcolors = config.bcolors.HEADER if cur_profit > crossed_profit else config.bcolors.OKCYAN
-        print("[E] {:<15.2f} [C] {}{:<15.2f}{}".format(cur_profit, bcolors,
-                                                       crossed_profit, config.bcolors.ENDC), end=' ')
+        # print("[E] {:<15.2f} [C] {}{:<15.2f}{}".format(cur_profit, bcolors,
+        #                                                crossed_profit, config.bcolors.ENDC), end=' ')
 
     def crossover(self):
         cur_profit = self.populations_profit
@@ -123,14 +123,17 @@ class GA:
                     tmp_mf.calc_C()
 
                     if self.calc_deman(tmp_chomo[1:], tmp_chomo[0]) < config.P and tmp_mf.get_total_profit() > cur_mf.get_total_profit():
+                        print('Here')
                         self.manufacturers[cur_mf_idx] = deepcopy(tmp_mf)
+                        print('{:15.2f}'.format(
+                            self.manufacturers[cur_mf_idx].get_model_demand()))
                         break
         self.evaluation()
 
         crossed_profit = self.populations_profit
         bcolors = config.bcolors.HEADER if cur_profit > crossed_profit else config.bcolors.OKCYAN
-        print("[C] {}{:<15.2f}{}".format(bcolors,
-                                         crossed_profit, config.bcolors.ENDC))
+        # print("[C] {}{:<15.2f}{}".format(bcolors,
+        #                                  crossed_profit, config.bcolors.ENDC))
 
     def mutation(self):
         for i in range(int(self.population*self.p_mutation)):

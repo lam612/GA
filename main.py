@@ -5,10 +5,10 @@ import sys
 
 from GA import GA
 
-population = 1000
+pl_size = 1000
 generation_count = 1000
 
-ga = GA(population)
+ga = GA(pl_size, 0.6, 0.8, 0.4)
 
 ga.create()
 print("{}".format(204 * "-"))
@@ -28,7 +28,7 @@ for i in range(generation_count):
     ga.selection()
     ga.crossover()
     ga.mutation()
-    if i % (generation_count / 50) == 0:
+    if i % 1 == 0:
         print('[{:>3d}] | '.format(i), end='')
         ga.show_optimal()
 
