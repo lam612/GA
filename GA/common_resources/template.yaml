@@ -1,0 +1,129 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: "SAM Template for create Common Resources : DynamoDB, S3, SQS"
+
+Parameters:
+  Stage:
+    Type: String
+    Description: Environment
+    Default: dev
+    AllowedValues:
+      - dev
+      - stg
+      - prd
+    ConstraintDescription: must specify dev or stg or prd.
+
+Mappings:
+  Stage:
+    Uppercase:
+      dev: DEV
+      stg: STG
+      prd: PRD
+
+Globals:
+  Function:
+    Timeout: 900
+    MemorySize: 128
+    Runtime: python3.8
+
+Resources:
+  VideoDLLogsTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      TableName:
+        Fn::Sub:
+          - "${STAGE}_VIDEOS_DL_LOGS"
+          - STAGE: !FindInMap
+              - Stage
+              - Uppercase
+              - !Ref Stage
+
+      AttributeDefinitions:
+        - AttributeName: media_video_id
+          AttributeType: S
+        - AttributeName: sqs_message_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: media_video_id
+          KeyType: HASH # partition key
+        - AttributeName: sqs_message_id
+          KeyType: RANGE # partition key
+      GlobalSecondaryIndexes:
+        - IndexName: sqs_message_id_gsi
+          KeySchema:
+            - AttributeName: sqs_message_id
+              KeyType: HASH # partition key
+          Projection:
+            # NonKeyAttributes: [raw_url, info, lambda_ip, status, created_at, updated_at]
+            ProjectionType: ALL
+          # ProvisionedThroughput:
+          #   ReadCapacityUnits: 5
+          #   WriteCapacityUnits: 5
+      # NOTE: temporary use PAY_PER_REQUEST mode caused unpredictable workloads
+      BillingMode: PAY_PER_REQUEST
+      # ProvisionedThroughput:
+      #   ReadCapacityUnits: 5
+      #   WriteCapacityUnits: 5
+
+  VideoDLS3:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      BucketName: !Sub "${Stage}-crawler-kiban"
+
+  VideoDLDeadQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub "${Stage}-video-dl-dead-queue"
+
+  VideoDLQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub "${Stage}-video-dl-queue"
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt VideoDLDeadQueue.Arn
+        maxReceiveCount: 4
+      Tags:
+        - Key: VideoDLDeadQueue
+          Value: !GetAtt VideoDLDeadQueue.Arn
+        - Key: SQSPath
+          Value: DownloadSQS
+      VisibilityTimeout: 900
+
+Outputs:
+  VideoDLQueueArn:
+    Description: "Video Download Queue ARN"
+    Value:
+      Fn::GetAtt:
+        - "VideoDLQueue"
+        - "Arn"
+
+  VideoDLQueueName:
+    Description: "Video Download Queue Name"
+    Value: !GetAtt VideoDLQueue.QueueName
+
+  VideoDLQueueUrl:
+    Description: "Video Download Queue Url"
+    Value: !Ref VideoDLQueue
+
+  VideoDLDeadQueue:
+    Description: "Video Download Dead Queue ARN"
+    Value:
+      Fn::GetAtt:
+        - "VideoDLDeadQueue"
+        - "Arn"
+
+  VideoDLDeadQueue:
+    Description: "Video Download Dead Queue Name"
+    Value: !GetAtt VideoDLDeadQueue.QueueName
+
+  VideoDLDeadQueue:
+    Description: "Video Download Dead Queue Url"
+    Value: !Ref VideoDLDeadQueue
+
+  VideoDLLogsTableName:
+    Description: "Video Download Logs Table Name"
+    Value: !Ref VideoDLLogsTable
+
+  VideoDLS3Name:
+    Description: "Video Download S3 Name"
+    Value: !Ref VideoDLS3

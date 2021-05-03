@@ -1,0 +1,73 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: "SAM Template for Predict Product Demand"
+
+Parameters:
+  Stage:
+    Type: String
+    Description: Environment
+    Default: dev
+    AllowedValues:
+      - dev
+      - stg
+      - prd
+    ConstraintDescription: must specify dev or stg or prd.
+
+  EndpointUrl:
+    Type: String
+    Default: None
+
+  Region:
+    Type: String
+    Default: us-east-1
+
+  S3Name:
+    Type: String
+
+  ModelS3Name:
+    Type: String
+
+Globals:
+  Function:
+    Timeout: 900
+    MemorySize: 128
+    Runtime: python3.8
+
+Resources:
+  PreDemandApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: "pre-demand-api"
+      StageName: !Ref Stage
+
+  PreDemandFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "pre-demand"
+      CodeUri: lambda/
+      Handler: src.app.lambda_handler
+      Runtime: python3.8
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref S3Name
+      Environment:
+        Variables:
+          S3_Name: !Ref S3Name
+          ENDPOINT_URL: !Ref EndpointUrl
+          MODEL_S3_NAME: !Ref ModelS3Name
+      Events:
+        GetPreDemandRequest:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PreDemandApi
+            Path: /get-predict-demand
+            Method: GET
+
+Outputs:
+  PreDemandFunctionName:
+    Description: "Predict product Demand Info Lambda Function Name"
+    Value: !Ref PreDemandFunction
+  
+  PreDemandFunctionArn:
+    Description: "Predict product Demand Info Lambda Function ARN"
+    Value: !GetAtt PreDemandFunction.Arn
