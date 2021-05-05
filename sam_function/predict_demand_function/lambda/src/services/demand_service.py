@@ -4,7 +4,6 @@ import boto3
 import json
 import traceback
 import logging
-from sklearn import linear_model
 import joblib
 
 logging.basicConfig(

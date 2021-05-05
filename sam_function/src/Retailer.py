@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
-import numpy as np
+import os
 import config
 import random
+import json
+from dotenv import load_dotenv
+from utils.common import LRModel
+
+load_dotenv()
 
 
 class Retailer:
@@ -20,8 +25,7 @@ class Retailer:
     # theta: Lợi nhuận mở rộng
     # b: tỉ lệ thời gian tồn đọng hàng trong 1 chu kỳ của nhà bán lẻ i
 
-    def __init__(self, id=int, a=int, max_AS=0.5):
-        self.e_a = config.e_a[id]
+    def __init__(self, id=int, a=int, cp=int):
         self.K = config.K[id]
         self.phi = config.phi[id]
         self.uc = config.uc[id]
@@ -29,33 +33,34 @@ class Retailer:
         self.H_b = config.H_b[id]
         self.L_b = config.L_b[id]
         self.S_b = config.S_b[id]
-        self.p = config.p[id]
-        self.e_p = config.e_p[id]
         self.theta = 0
         self.b = 0
-        self.max_revenue = self.K * self.p
-        self.max_a = self.max_revenue * max_AS
-        self.set_a(a)
+        self.a = a
+        self.p = config.p
+        self.max_a = config.MAX_a[id]
         self.calculator_b()
+        self.model_val = LRModel()
 
     # get_demand: Tính nhu cầu sản phẩm trên mỗi đơn vị thời gian của nhà bán lẻ
-    def get_demand(self, A, e_A):
-        D = self.K * pow(1 + self.a, self.e_a) * \
-            pow(1 + A, e_A) / pow(self.p / self.cp, self.e_p)
-        return D
+    def get_predict_demand(self, A):
+        return self.model_val.get_predict_demand(A, self.a, self.p)
+
+    def get_model_val(self):
+        with open(os.environ["MODEL_PATH_2"], 'r') as fp:
+            self.model_val = json.load(fp)
+        return self.model_val
+
+    def set_ads(self, a):
+        self.a = min(self.max_a, a)
 
     # get_profit: Tính lợi nhuận của nhà bán lẻ
     # Tổng thu - Tổng chi
     # Nhu cầu * giá bán p - nhu cầu * (giá mua cp + giá trả uc + chi phí mở rộng theta) - chi phí quảng cáo a
 
-    def get_profit(self, A, e_A):
-        NP_bi = self.get_demand(
-            A, e_A) * (self.p - self.cp - self.uc - self.theta) - self.a
+    def get_profit(self, A):
+        NP_bi = self.get_predict_demand(A) * (self.p - self.cp -
+                                              self.uc - self.theta) - self.a
         return NP_bi
 
     def calculator_b(self):
         self.b = self.H_b / (self.H_b + self.L_b)
-
-    def set_a(self, a):
-        self.a = min(self.max_a, a)
-        # self.a = a
