@@ -108,11 +108,11 @@
     }
   },
   "model": {
-    "generation_number": 20,
-    "population_size": 10,
-    "selection_rate": 0.6,
+    "generation_number": 100,
+    "population_size": 1000,
+    "selection_rate": 0.8,
     "crossover_rate": 0.6,
-    "mutation_rate": 0.2,
+    "mutation_rate": 0.1,
     "MAX_A": 300,
     "MAX_a": 200
   }

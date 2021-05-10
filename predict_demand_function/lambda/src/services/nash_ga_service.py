@@ -29,28 +29,42 @@ class NashGAService:
         self.c_size = int(self.p_size * (1 - self.nash_ga.c_rate))
         self.m_size = int(self.p_size * (1 - self.nash_ga.m_rate))
         self.generation_fitness = [0] * self.p_size
+        self.is_log = 0
 
-    def process(self):
+    def process(self, is_log):
+        self.is_log = is_log
         self.create_population()
         for g_idx in range(self.g_num):
             self.selection()
             self.crossover()
-        return self.nash_solution
+            self.mutations()
+
+        solution = [p["p"] for p in self.nash_solution]
+        solution.sort()
+        best_profit = solution[-1]
+
+        return {
+            "best_profit": best_profit,
+            "log": self.nash_solution
+        }
+
+    def gen_random_val(self):
+        while True:
+            A = random.randrange(1, self.nash_ga.MAX_A)
+            a_list = [random.randrange(1, self.nash_ga.MAX_a)
+                      for _ in range(self.mft_dao.NUM_OF_RETAILERS)]
+            material_cost = self.mft_dao.materials_cost
+            p = self.mft_dao.p
+            cp_list = [random.randrange(
+                material_cost, p) for _ in range(self.mft_dao.NUM_OF_RETAILERS)]
+            if self.pre_demand.get_total_predict(A, a_list, cp_list) < self.mft_dao.P:
+                return [A, a_list, cp_list]
 
     def create_population(self):
         for i in range(self.p_size):
             mft = ManufacturerService()
-            while True:
-                A = random.randrange(1, self.nash_ga.MAX_A)
-                a_list = [random.randrange(1, self.nash_ga.MAX_a)
-                          for _ in range(self.mft_dao.NUM_OF_RETAILERS)]
-                material_cost = self.mft_dao.get_material_cost()
-                p = self.mft_dao.p
-                cp_list = [random.randrange(
-                    material_cost, p) for _ in range(self.mft_dao.NUM_OF_RETAILERS)]
-                if self.pre_demand.get_total_predict(A, a_list, cp_list) < self.mft_dao.P:
-                    mft.set_r_val(A, a_list, cp_list)
-                    break
+            [A, a_list, cp_list] = self.gen_random_val()
+            mft.set_r_val(A, a_list, cp_list)
             self.mft_list.append(mft)
 
     def evaluation(self):
@@ -71,7 +85,7 @@ class NashGAService:
         best_mft_idx = self.generation_fitness.index(
             best_mft_profit)
         best_mft = self.mft_list[best_mft_idx]
-        best_solution = best_mft.get_m_solution()
+        best_solution = best_mft.get_m_solution(self.is_log)
         self.nash_solution.append(best_solution)
 
         for idx, fitness in enumerate(self.generation_fitness):
@@ -108,3 +122,12 @@ class NashGAService:
                     if self.pre_demand.get_total_predict(A, a_list, cp_list) < self.mft_dao.P:
                         cur_mft.set_r_val(A, a_list, cp_list)
                         break
+
+    def mutations(self):
+        for _ in range(self.m_size):
+            mut_mft_id = random.randrange(self.p_size)
+            while True:
+                [A, a_list, cp_list] = self.gen_random_val()
+                if self.pre_demand.get_total_predict(A, a_list, cp_list) < self.mft_dao.P:
+                    self.mft_list[mut_mft_id].set_r_val(A, a_list, cp_list)
+                    break

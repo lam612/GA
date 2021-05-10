@@ -24,6 +24,7 @@ class ManufacturerDao:
         self.NUM_OF_MATERIALS = self.info["info"]["NUM_OF_MATERIALS"]
         self.NUM_OF_RETAILERS = self.info["info"]["NUM_OF_RETAILERS"]
         self.materials = self.info["materials"]
+        self.materials_cost = self.get_material_cost()
         self.r_ids = self.info["info"]["r_ids"]
 
     def get_model_variables(self):

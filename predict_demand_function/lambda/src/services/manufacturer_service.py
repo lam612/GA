@@ -64,15 +64,13 @@ class ManufacturerService:
         rtl_weight = self.nash["retailer"]
         rtl_fitness = sum([rtl_weight[retailer.id]["weight"] *
                           retailer.get_retailer_profit() for retailer in self.retailers])
-        # for retailer in self.retailers:
-        #     print(retailer.get_retailer_profit())
-        #     print(rtl_weight[retailer.id]["weight"])
         fitness += rtl_fitness
-        # print(rtl_fitness)
         return fitness
 
     def get_m_profit(self):
         self.set_total_demand()
+        if self.total_demand == 0:
+            return 0
         NP_M = self.get_TR_M() - self.get_TC_M()
         return NP_M
 
@@ -93,7 +91,7 @@ class ManufacturerService:
         return TC_M
 
     def get_TDC_M(self):
-        material_cost = self.mft_dao.get_material_cost()
+        material_cost = self.mft_dao.materials_cost
         direct_cost_per_unit = material_cost + self.M_p + self.M_s
         TDC_M = self.total_demand * direct_cost_per_unit
         return TDC_M
@@ -156,23 +154,39 @@ class ManufacturerService:
         for idx, retailer in enumerate(self.retailers):
             retailer.set_retailer_val(A, a[idx], cp[idx])
 
-    def get_m_solution(self):
-        solution = []
-        # for retailer in self.retailers:
-        #     r_profit = retailer.get_retailer_profit()
-        #     r_val = {
-        #         "r_id": retailer.id,
-        #         "A": retailer.A,
-        #         "a": retailer.a,
-        #         "cp": retailer.cp,
-        #         "profit": r_profit
-        #     }
-        #     solution.append(r_val)
-        # m_profit = self.get_m_profit()
-        total_profit = self.get_total_profit()
-        solution.append({
-            "total_profit": total_profit
-        })
+    def get_m_solution(self, is_log):
+        total_profit = int(self.get_total_profit())
+
+        if is_log == 1:
+            total_demand = self.total_demand
+            total_TR = self.get_TR_M()
+            total_TC = self.get_TC_M()
+            solution = {
+                "p": total_profit,
+                "d": total_demand,
+                "TR": total_TR,
+                "TC": total_TC,
+                "r": []
+            }
+            for retailer in self.retailers:
+                r_demand = retailer.get_retailer_demand()
+                r_profit = int(retailer.get_retailer_profit())
+                r_val = {
+                    "r_id": retailer.id,
+                    "sell": retailer.p,
+                    "A": retailer.A,
+                    "cp": retailer.cp,
+                    "uc": retailer.uc,
+                    "a": retailer.a,
+                    "d": r_demand,
+                    "p": r_profit
+                }
+                solution["r"].append(r_val)
+        else:
+            solution = {
+                "p": total_profit
+            }
+
         return solution
 
     def get_m_gen(self):

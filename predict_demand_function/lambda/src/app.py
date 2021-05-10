@@ -20,12 +20,10 @@ def lambda_handler(event, context):
             })
         }
 
-    # manu_discount = float(event["queryStringParameters"].get("m_ads", 0))
-    # retailer_discount = float(event["queryStringParameters"].get("r_ads", 0))
-    # sell_price = float(event["queryStringParameters"].get("price", 0))
+    is_log = int(event["queryStringParameters"].get("log", 0))
 
     try:
-        response = service.process()
+        response = service.process(is_log)
     except Exception as e:
         logger.error('Server Internal Error')
         logger.error(str(e))
@@ -39,7 +37,5 @@ def lambda_handler(event, context):
     else:
         return {
             "statusCode": 200,
-            "body": json.dumps({
-                "opt": response
-            }),
+            "body": json.dumps(response),
         }

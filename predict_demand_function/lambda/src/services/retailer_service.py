@@ -34,7 +34,7 @@ class RetailerService:
         return self.pre_demand_dao.get_predict_demand(self.A, self.a, self.cp)
 
     def get_retailer_profit(self):
-        NP_bi = self.get_retailer_demand() * (self.p - self.cp - self.uc) - self.a
+        NP_bi = self.get_retailer_demand() * (self.p - self.cp - self.uc - self.a)
         return NP_bi
 
     def get_m_debt(self):
@@ -44,6 +44,9 @@ class RetailerService:
         return self.get_retailer_demand() * (self.A)
 
     def get_TTC(self):
+        r_demand = self.get_retailer_demand()
+        if r_demand == 0:
+            return 0
         T_fee = self.get_retailer_demand() * self.H_b
         TC_setup = self.S_b + self.L_b * self.b_rate
         self.CT_fp = math.sqrt(TC_setup / T_fee)

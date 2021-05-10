@@ -16,7 +16,11 @@ class PredictDemandModelService:
         self.intercept = self.pre_demand_dao.intercept
 
     def get_predict_demand(self, A, a, cp):
-        return A * int(self.coef[0]) + a * int(self.coef[1]) + cp * int(self.coef[2]) + self.intercept
+        demand = A * int(self.coef[0]) + a * int(self.coef[1]) + \
+            cp * int(self.coef[2]) + self.intercept
+        if demand < 0:
+            return 0
+        return demand
 
     def get_total_predict(self, A, list_a, list_cp):
         return sum([self.get_predict_demand(A, list_a[i], list_cp[i]) for i in range(len(list_a))])
