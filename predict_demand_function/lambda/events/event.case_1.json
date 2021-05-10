@@ -1,0 +1,8 @@
+{
+  "httpMethod": "GET",
+  "queryStringParameters": {
+    "m_ads": 100,
+    "r_ads": 100,
+    "price": 170
+  }
+}
