@@ -1,0 +1,12 @@
+
+{
+  "name": "VMI_Model",
+  "description": "VMI model : OPT profit for VMI",
+  "version": "1.0.0",
+  "license": "MIT",
+  "scripts": {
+    "build": "sam build --use-container -t template.yaml",
+    "local": "sam local invoke --docker-network host --env-vars env.json -e lambda/events/event.case_1.json",
+    "api": "sam local start-api -t template.yaml --docker-network host --env-vars env.json"
+  }
+}
