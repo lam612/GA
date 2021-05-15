@@ -76,8 +76,8 @@ class ManufacturerService:
         return sum([retailer.get_retailer_profit() for retailer in self.retailers])
 
     def calc_fitness(self, weight_list):
-        if abs(sum(weight_list) - 1) > 0.01:
-            print("[Error] {} - {}".format(weight_list, sum(weight_list)))
+        if sum(weight_list) != 1:
+            print("[Error] {}".format(weight_list))
         mf_fitness = self.get_m_profit() * weight_list[0]
         rtl_fitness = sum([weight_list[idx + 1] *
                           retailer.get_retailer_profit() for idx, retailer in enumerate(self.retailers)])

@@ -1,0 +1,61 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: SAM Template for VMI
+Parameters:
+  Stage:
+    Type: String
+    Description: Environment
+    Default: dev
+    AllowedValues:
+    - dev
+    - stg
+    - prd
+    ConstraintDescription: must specify dev or stg or prd.
+  MODEL_PATH:
+    Type: String
+    Default: None
+  Region:
+    Type: String
+    Default: us-east-1
+Globals:
+  Function:
+    Timeout: 900
+    MemorySize: 128
+    Runtime: python3.8
+Resources:
+  VMIApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: pre-demand-api
+      StageName:
+        Ref: Stage
+  VMIFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: VMI-Function
+      CodeUri: VMIFunction
+      Handler: src.app.lambda_handler
+      Runtime: python3.8
+      Environment:
+        Variables:
+          MODEL_PATH:
+            Ref: MODEL_PATH
+      Events:
+        GetOptProfitRequest:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: VMIApi
+            Path: /opt-profit
+            Method: GET
+Outputs:
+  VMIFunctionName:
+    Description: Optimal VMI Profit Lambda Function Name
+    Value:
+      Ref: VMIFunction
+  VMIFunctionArn:
+    Description: Optimal VMI Profit Lambda Function ARN
+    Value:
+      Fn::GetAtt:
+      - VMIFunction
+      - Arn
