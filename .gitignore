@@ -1,2 +1,5 @@
-.aws-sam
-node_modules
+.aws-sam/
+node_modules/
+yarn.lock
+packaged.yaml
+samconfig.toml

@@ -1,0 +1,9 @@
+{
+  "resource": "/check-vmi",
+  "path": "/check-vmi",
+  "isBase64Encoded": false,
+  "httpMethod": "GET",
+  "queryStringParameters": {
+    "vmi_id": "1d38cb58d1403cc6f9068ffb5530adc4"
+  }
+}

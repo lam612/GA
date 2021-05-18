@@ -1,0 +1,60 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: "VMI SAM Template"
+
+Parameters:
+  Stage:
+    Type: String
+    Description: Environment
+    Default: dev
+    AllowedValues:
+      - dev
+      - stg
+      - prd
+    ConstraintDescription: must specify dev or stg or prd.
+
+  Region:
+    Type: String
+    Description: Region
+    Default: us-east-1
+
+Resources:
+  CommonResources:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: common_resources/template.yaml
+      Parameters:
+        Stage: !Ref Stage
+    
+  CheckVMIOpt:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: check_vmi_opt_function/packaged.yaml
+      Parameters:
+        Stage: !Ref Stage
+        VMINashGATable: !Sub "${CommonResources.Outputs.VMINashGATableName}"
+        Region: !Ref Region
+    DependsOn: CommonResources
+
+  GetNashGaOpt:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: get_nash_ga_opt_function/packaged.yaml
+      Parameters:
+        Stage: !Ref Stage
+        VMINashGATable: !Sub "${CommonResources.Outputs.VMINashGATableName}"
+        Region: !Ref Region
+    DependsOn: CommonResources
+
+  AddVmiVal:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: add_vmi_val_function/packaged.yaml
+      Parameters:
+        Stage: !Ref Stage
+        VMINashGATable: !Sub "${CommonResources.Outputs.VMINashGATableName}"
+        VMINashGAFunctionName: !Sub "${GetNashGaOpt.Outputs.VMINashGAFunctionName}"
+        Region: !Ref Region
+    DependsOn:
+      - CommonResources
+      - GetNashGaOpt
