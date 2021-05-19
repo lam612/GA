@@ -16,9 +16,8 @@ class VMIValDao:
         self.logger = logging.getLogger(__name__)
         self.session = boto3.session.Session()
         endpoint_url = None
-        # if os.getenv('ENDPOINT_URL', None) is not None and os.getenv('ENDPOINT_URL', None).strip() != 'None':
-        #     endpoint_url = os.getenv('ENDPOINT_URL')
-        endpoint_url = "http://localhost:4566"
+        if os.getenv('ENDPOINT_URL', None) is not None and os.getenv('ENDPOINT_URL', None).strip() != 'None':
+            endpoint_url = os.getenv('ENDPOINT_URL')
         self.client = self.session.client(
             service_name='dynamodb',
             endpoint_url=endpoint_url

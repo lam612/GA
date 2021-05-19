@@ -19,7 +19,6 @@ def lambda_handler(event, context):
                 "message": "Invalid input Error"
             })
         }
-    print(type(event["body"]))
     vmi_val = json.loads(event["body"])["vmi_val"]
 
     try:

@@ -11,7 +11,7 @@ class PredictDemandModelDao:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
         self.model_path = os.getenv(
-            "DATA_PATH", "src/data/demand.json")
+            "MODEL_PATH", "src/data/demand.json")
         self.model = self.get_model_variables()
         self.coef = self.model['coef']
         self.intercept = self.model['intercept']

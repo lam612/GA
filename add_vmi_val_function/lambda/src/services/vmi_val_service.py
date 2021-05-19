@@ -3,6 +3,7 @@ import logging
 import hashlib
 import json
 import os
+import boto3
 from ..daos import VMIValDao
 from botocore.exceptions import ClientError
 from ..constants import JobStatus
@@ -15,7 +16,9 @@ logging.basicConfig(
 class VMIValService:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
+        self.session = boto3.session.Session()
         self.db = VMIValDao()
+        endpoint_url = None
         if os.getenv('ENDPOINT_URL', None) is not None and os.getenv('ENDPOINT_URL', None).strip() != 'None':
             endpoint_url = os.getenv('ENDPOINT_URL')
         self.client = self.session.client(

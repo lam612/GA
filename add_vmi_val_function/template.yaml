@@ -35,7 +35,7 @@ Resources:
   AddValApi:
     Type: AWS::Serverless::Api
     Properties:
-      Name: "check-val-api"
+      Name: "add-val-api"
       StageName: !Ref Stage
 
   AddVMIFunction:
@@ -70,6 +70,7 @@ Resources:
         Variables:
           TABLE_NAME: !Ref VMINashGATable
           FUNCTION_NAME: !Ref VMINashGAFunctionName
+          REGION: !Ref Region
       Events:
         GetOptProfitRequest:
           Type: Api

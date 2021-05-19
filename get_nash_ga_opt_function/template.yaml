@@ -36,12 +36,6 @@ Globals:
     Runtime: python3.8
 
 Resources:
-  VMIApi:
-    Type: AWS::Serverless::Api
-    Properties:
-      Name: "vmi-nash-ga-api"
-      StageName: !Ref Stage
-
   VMINashGAFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -73,13 +67,6 @@ Resources:
           MODEL_PATH: !Ref ModelPath
           TABLE_NAME: !Ref VMINashGATable
           DATA_PATH: !Ref DataPath
-      Events:
-        GetOptProfitRequest:
-          Type: Api
-          Properties:
-            RestApiId: !Ref VMIApi
-            Path: /get-vmi-str
-            Method: GET
 
 Outputs:
   VMINashGAFunctionName:
