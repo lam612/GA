@@ -37,6 +37,9 @@ Resources:
     Properties:
       Name: "add-val-api"
       StageName: !Ref Stage
+      Cors:
+        AllowMethods: "'POST, OPTIONS'"
+        AllowOrigin: "'*'"
 
   AddVMIFunction:
     Type: AWS::Serverless::Function

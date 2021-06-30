@@ -15,6 +15,11 @@ def lambda_handler(event, context):
     if event.get("queryStringParameters", None) is None:
         return {
             "statusCode": 400,
+            'headers': {
+                'Access-Control-Allow-Headers': 'Content-Type',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'
+            },
             "body": json.dumps({
                 "message": "Invalid input Error"
             })
@@ -28,6 +33,11 @@ def lambda_handler(event, context):
         traceback.print_exc()
         return {
             "statusCode": 400,
+            'headers': {
+                'Access-Control-Allow-Headers': 'Content-Type',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'
+            },
             "body": json.dumps({
                 "message": "Invalid input Error"
             })
@@ -41,6 +51,11 @@ def lambda_handler(event, context):
         traceback.print_exc()
         return {
             "statusCode": 500,
+            'headers': {
+                'Access-Control-Allow-Headers': 'Content-Type',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'
+            },
             "body": json.dumps({
                 "message": "Server Internal Error"
             })
@@ -48,5 +63,10 @@ def lambda_handler(event, context):
     else:
         return {
             "statusCode": 200,
+            'headers': {
+                'Access-Control-Allow-Headers': 'Content-Type',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'
+            },
             "body": json.dumps(response)
         }

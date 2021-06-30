@@ -23,6 +23,7 @@ class ManufacturerService:
         self.M_s = self.mf_dao.M_s
         self.P = self.mf_dao.P
         self.C = self.mf_dao.C
+        self.CT_r = []
         self.materials = self.mf_dao.materials
         self.NUM_OF_MATERIALS = self.mf_dao.NUM_OF_MATERIALS
         self.NUM_OF_RETAILERS = self.mf_dao.NUM_OF_RETAILERS
@@ -100,59 +101,61 @@ class ManufacturerService:
 
     def get_TR_M(self):
         TR_M = sum([retailer.get_m_debt() for retailer in self.retailers])
-        return TR_M
+        return round(TR_M, 2)
 
     def get_TC_M(self):
         TC_M = self.get_TDC_M() + self.get_TIDC_M()
-        return TC_M
+        return round(TC_M, 2)
 
     def get_TDC_M(self):
         material_cost = self.mf_dao.materials_cost
         direct_cost_per_unit = material_cost + self.M_p + self.M_s
         TDC_M = self.total_demand * direct_cost_per_unit
-        return TDC_M
+        return round(TDC_M, 2)
 
     def get_TIDC_M(self):
         TIDC_M = self.get_TIC() + self.get_TTC() + self.get_total_m_ads()
-        return TIDC_M
+        return round(TIDC_M, 2)
 
     def get_TIC(self):
         TIC = self.get_TIC_r() + self.get_TIC_fp()
-        return TIC
+        return round(TIC, 2)
 
     def get_TTC(self):
         TTC = self.get_TTC_r() + self.get_TTC_fp() + self.get_TTC_b()
-        return TTC
+        return round(TTC, 2)
 
     def get_TTC_r(self):
         TTC_r = 0
+        self.CT_r = []
         for material in self.materials.values():
             T_fee = self.total_demand * material["M"] * material["T_r"]
-            CT_r = math.sqrt(material["S_r"] / T_fee)
+            CT_r = round(math.sqrt(material["S_r"] / T_fee), 2)
+            self.CT_r.append(CT_r)
             TTC_r += material["S_r"] / CT_r + T_fee * CT_r
-        return TTC_r
+        return round(TTC_r, 2)
 
     def get_TIC_r(self):
         TIC = 0
         for material in self.materials.values():
             TIC += (material["n"] + 1) * self.total_demand * \
                 material["M"] * material["H_r"] / 2
-        return TIC
+        return round(TIC, 2)
 
     def get_TTC_fp(self):
         T_fee = self.total_demand * self.T_p
         self.CT_fp = math.sqrt(self.S_p / T_fee)
-        TTC_fp = self.S_p / self.CT_fp + T_fee * self.CT_fp
+        TTC_fp = round(self.S_p / self.CT_fp + T_fee * self.CT_fp, 2)
         return TTC_fp
 
     def get_TIC_fp(self):
-        TIC_fp = self.total_demand * self.H_p
+        TIC_fp = round(self.total_demand * self.H_p, 2)
         return TIC_fp
 
     def get_TTC_b(self):
         TTC_b = sum([retailer.get_TTC()
                     for retailer in self.retailers])
-        return TTC_b
+        return round(TTC_b, 2)
 
     def set_r_A(self, A):
         for idx, retailer in enumerate(self.retailers):
@@ -192,3 +195,29 @@ class ManufacturerService:
         for retailer in self.retailers:
             m_gen += [retailer.a, retailer.cp]
         return m_gen
+
+    def get_VMI_CT(self):
+        CT_b = [retailer.CT_fp for retailer in self.retailers]
+        CT_list = {
+            "CT_r": self.CT_r,
+            "CT_fp": self.CT_fp,
+            "CT_b": CT_b
+        }
+        return CT_list
+
+    def get_m_cost_list(self):
+        cost_list = {
+            "TTC_r": self.get_TTC_r(),
+            "TTC_b": self.get_TTC_b(),
+            "TTC_fp": self.get_TTC_fp(),
+            "TIC_r": self.get_TIC_r(),
+            "TIC_fp": self.get_TIC_fp(),
+            "TTC": self.get_TTC(),
+            "TIC": self.get_TIC(),
+            "TAdC": self.get_total_m_ads(),
+            "TIDC_M": self.get_TIDC_M(),
+            "TDC_M": self.get_TDC_M(),
+            "TC_M": self.get_TC_M(),
+            "TR_M": self.get_TR_M(),
+        }
+        return cost_list

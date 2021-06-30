@@ -4,7 +4,7 @@ import logging
 import json
 
 logging.basicConfig(
-    format='[%(asctime)s] [%(levelname)s] %(message)s', level=logging.INFO)
+    format="[%(asctime)s] [%(levelname)s] %(message)s", level=logging.INFO)
 
 
 def lambda_handler(event, context):
@@ -23,8 +23,9 @@ def lambda_handler(event, context):
 
     try:
         response = service.process(vmi_val)
+        print(response)
     except Exception as e:
-        logger.error('Server Internal Error')
+        logger.error("Server Internal Error")
         logger.error(str(e))
         traceback.print_exc()
         return {

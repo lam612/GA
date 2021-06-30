@@ -210,11 +210,15 @@ class NashService:
             fitness_list.append(player_fitness)
         retailers_demand = self.mf_service.get_retailers_demand_list()
         retailers_profit = self.mf_service.get_model_profit_list()
+        mf_cost_list = self.mf_service.get_m_cost_list()
+        mf_CT_list = self.mf_service.get_VMI_CT()
 
         cur_nash = {
             "A": pre_mf_ads,
             "cp": pre_mf_cp,
             "a": pre_r_ads,
+            "CT": mf_CT_list,
+            "cost": mf_cost_list,
             "fitness": fitness_list,
             "demand": retailers_demand,
             "profit": retailers_profit

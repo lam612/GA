@@ -33,6 +33,9 @@ Resources:
     Properties:
       Name: "check-val-api"
       StageName: !Ref Stage
+      Cors:
+        AllowMethods: "'GET, OPTIONS'"
+        AllowOrigin: "'*'"
 
   CheckVMIFunction:
     Type: AWS::Serverless::Function

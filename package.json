@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "reset": "find . -type f -name 'packaged.yaml' -delete; find . -type f -name 'samconfig.toml' -delete",
-    "init-db": "aws --endpoint-url=http://localhost:4566 dynamodb create-table --cli-input-json file://dynamoDB.json",
+    "init-db": "aws --endpoint-url=http://localhost:4566 dynamodb create-table --cli-input-json file://common_resources/dynamoDB.json",
     "db-scan": "aws --endpoint-url=http://localhost:4566 dynamodb scan --table-name VMI_VARIABLE",
     "db-del": "aws --endpoint-url=http://localhost:4566 dynamodb delete-table --table-name VMI_VARIABLE",
     "validate": "sam validate --debug -t template.yaml",
