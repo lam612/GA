@@ -1,0 +1,84 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: SAM Template for VMI
+Parameters:
+  Stage:
+    Type: String
+    Description: Environment
+    Default: dev
+    AllowedValues:
+    - dev
+    - stg
+    - prd
+    ConstraintDescription: must specify dev or stg or prd.
+  Region:
+    Type: String
+    Default: us-east-1
+  VMINashGATable:
+    Type: String
+    Default: VMI_VARIABLE
+Globals:
+  Function:
+    Timeout: 900
+    MemorySize: 128
+    Runtime: python3.8
+Resources:
+  CheckValApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: check-val-api
+      StageName:
+        Ref: Stage
+      Cors:
+        AllowMethods: '''GET, OPTIONS'''
+        AllowOrigin: '''*'''
+  CheckVMIFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: VMI-Check-Function
+      CodeUri: s3://aws-vmi-nash-ga/c7a14f0c8aeec0e38ab80677825c6bb2
+      Role: arn:aws:iam::988603520616:role/lambda_vmi
+      Handler: src.app.lambda_handler
+      Runtime: python3.8
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: VMINashGATable
+      - Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action:
+          - iam:CreateRole
+          - iam:PutRolePolicy
+          - lambda:CreateFunction
+          - lambda:InvokeAsync
+          - lambda:InvokeFunction
+          - lambda:UpdateAlias
+          - lambda:CreateAlias
+          - lambda:GetFunctionConfiguration
+          - lambda:AddPermission
+          - lambda:UpdateFunctionCod
+          Resource: '*'
+      Environment:
+        Variables:
+          TABLE_NAME:
+            Ref: VMINashGATable
+      Events:
+        GetOptProfitRequest:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: CheckValApi
+            Path: /check-vmi
+            Method: GET
+Outputs:
+  CheckVMIFunctionName:
+    Description: Check VMI Nash GA Variable Lambda Function Name
+    Value:
+      Ref: CheckVMIFunction
+  CheckVMIFunctionArn:
+    Description: Check VMI Nash GA Variable Lambda Function ARN
+    Value:
+      Fn::GetAtt:
+      - CheckVMIFunction
+      - Arn

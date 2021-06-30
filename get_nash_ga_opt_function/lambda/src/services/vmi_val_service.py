@@ -18,9 +18,10 @@ class VMIValService:
         self.vmi_val = {}
 
     def get_vmi_val_by_id(self, vmi_id: str):
-        self.vmi_val = json.loads(self.db.query_by_id(vmi_id)["vmi_val"])
-        with open(self.data_path, 'w') as fp:
-            json.dump(self.vmi_val, fp)
+        if self.data_path == '/tmp/data.json':
+            self.vmi_val = json.loads(self.db.query_by_id(vmi_id)["vmi_val"])
+            with open(self.data_path, 'w') as fp:
+                json.dump(self.vmi_val, fp)
 
     def update_item_status(self, vmi_id, status):
         try:

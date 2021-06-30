@@ -1,0 +1,40 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'SAM Template for create Common Resources : DynamoDB'
+Parameters:
+  Stage:
+    Type: String
+    Description: Environment
+    Default: dev
+    AllowedValues:
+    - dev
+    - stg
+    - prd
+    ConstraintDescription: must specify dev or stg or prd.
+  Region:
+    Type: String
+    Default: us-east-1
+Resources:
+  VMINashGATable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: VMI_VARIABLE
+      AttributeDefinitions:
+      - AttributeName: idx
+        AttributeType: S
+      KeySchema:
+      - AttributeName: idx
+        KeyType: HASH
+      GlobalSecondaryIndexes:
+      - IndexName: idx_gsi
+        KeySchema:
+        - AttributeName: idx
+          KeyType: HASH
+        Projection:
+          ProjectionType: ALL
+      BillingMode: PAY_PER_REQUEST
+Outputs:
+  VMINashGATableName:
+    Description: VMI Variable Table Name
+    Value:
+      Ref: VMINashGATable

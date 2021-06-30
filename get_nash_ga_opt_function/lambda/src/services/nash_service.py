@@ -10,6 +10,7 @@ from .ga_service import GAService, ManufacturerService
 from .pre_demand_service import PredictDemandModelService
 from .vmi_val_service import VMIValService
 from ..constants import JobStatus
+from ..constants import CommonConfig
 
 logging.basicConfig(
     format='[%(asctime)s] [%(levelname)s] %(message)s', level=logging.INFO)
@@ -47,7 +48,7 @@ class NashService:
             # Check nash
             is_nash_eq = self.check_nash_eq()
 
-            if is_nash_eq or step > 30:
+            if is_nash_eq or step > CommonConfig.MAX_NASH_GA_LOOP:
 
                 responce = self.get_nash_ga_response(
                     vmi_id, context, is_nash_eq, step)
@@ -65,14 +66,14 @@ class NashService:
 
     def gen_random_solution(self):
         while True:
-            A = random.randrange(1, self.ga_dao.MAX_A)
+            A = random.randrange(1, CommonConfig.MAX_A)
 
             material_cost = self.mf_dao.materials_cost
             p = self.mf_dao.p
             cp_list = [random.randrange(
                 material_cost, p * 0.95) for _ in range(self.mf_dao.NUM_OF_RETAILERS)]
 
-            a_list = [random.randrange(1, self.ga_dao.MAX_a)
+            a_list = [random.randrange(1, CommonConfig.MAX_a)
                       for _ in range(self.mf_dao.NUM_OF_RETAILERS)]
             if self.pre_demand.get_total_predict(A, a_list, cp_list) < self.mf_dao.P:
                 strategy = [A, cp_list, a_list]
@@ -91,8 +92,8 @@ class NashService:
             print("\n{}\n[*] {:^88s} [*]".format("=" *
                                                  96, "NASH EQ"))
             nash_strategy = self.nash_strategy[-1]
-            self.vmi_val_service.update_item(
-                vmi_id, JobStatus.SUCCEED, json.dumps(nash_strategy), json.dumps(self.nash_strategy))
+            # self.vmi_val_service.update_item(
+            #     vmi_id, JobStatus.SUCCEED, json.dumps(nash_strategy), json.dumps(self.nash_strategy))
 
         else:
             print("\n{} - NO  NASH EQ {} - {}".format("-" * 39, step,  "-" * 39))
