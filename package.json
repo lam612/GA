@@ -5,8 +5,12 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
-    "build": "sam build --use-container -t template.yaml",
-    "local": "sam local invoke --docker-network host --env-vars env.json -e lambda/events/event.case_1.json",
-    "api": "sam local start-api -t template.yaml --docker-network host --env-vars env.json"
+    "reset": "find . -type f -name 'packaged.yaml' -delete; find . -type f -name 'samconfig.toml' -delete",
+    "init-db": "aws --endpoint-url=http://localhost:4566 dynamodb create-table --cli-input-json file://common_resources/dynamoDB.json",
+    "db-scan": "aws --endpoint-url=http://localhost:4566 dynamodb scan --table-name VMI_VARIABLE",
+    "db-del": "aws --endpoint-url=http://localhost:4566 dynamodb delete-table --table-name VMI_VARIABLE",
+    "validate": "sam validate --debug -t template.yaml",
+    "package": "sam package --region us-east-1 --profile Law --debug --s3-bucket aws-vmi-nash-ga --output-template-file packaged.yaml",
+    "deploy": "sam deploy -g --profile Law --capabilities CAPABILITY_AUTO_EXPAND CAPABILITY_IAM --s3-bucket aws-vmi-nash-ga --template-file packaged.yaml ParameterKey=Stage,ParameterValue=dev,ParameterKey=ModelPath,ParameterValue=src/data/demand.json,ParameterKey=DataPath,ParameterValue=/tmp/data.json --debug --confirm-changeset --stack-name vmi-opt"
   }
 }

@@ -1,0 +1,92 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: "SAM Template for VMI"
+
+Parameters:
+  Stage:
+    Type: String
+    Description: Environment
+    Default: dev
+    AllowedValues:
+      - dev
+      - stg
+      - prd
+    ConstraintDescription: must specify dev or stg or prd.
+
+  Region:
+    Type: String
+    Default: us-east-1
+  
+  VMINashGATable:
+    Type: String
+    Default: VMI_VARIABLE
+  
+  VMINashGAFunctionName:
+    Type: String
+    Default: VMI-Get-Function
+
+Globals:
+  Function:
+    Timeout: 900
+    MemorySize: 128
+    Runtime: python3.8
+
+Resources:
+  AddValApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: "add-val-api"
+      StageName: !Ref Stage
+      Cors:
+        AllowMethods: "'POST, OPTIONS'"
+        AllowOrigin: "'*'"
+
+  AddVMIFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "VMI-Add-Function"
+      CodeUri: lambda/
+      Role: arn:aws:iam::988603520616:role/lambda_vmi
+      Handler: src.app.lambda_handler
+      Runtime: python3.8
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref VMINashGATable
+        - LambdaInvokePolicy:
+            FunctionName: !Ref VMINashGAFunctionName
+        - Version: "2012-10-17" # Policy Document
+          Statement:
+            - Effect: Allow
+              Action:
+                - iam:CreateRole
+                - iam:PutRolePolicy
+                - lambda:CreateFunction
+                - lambda:InvokeAsync
+                - lambda:InvokeFunction
+                - lambda:UpdateAlias
+                - lambda:CreateAlias
+                - lambda:GetFunctionConfiguration
+                - lambda:AddPermission
+                - lambda:UpdateFunctionCod
+              Resource: "*"
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref VMINashGATable
+          FUNCTION_NAME: !Ref VMINashGAFunctionName
+          REGION: !Ref Region
+      Events:
+        GetOptProfitRequest:
+          Type: Api
+          Properties:
+            RestApiId: !Ref AddValApi
+            Path: /add-val
+            Method: POST
+
+Outputs:
+  AddVMIFunctionName:
+    Description: "Add VMI Nash GA Variable Lambda Function Name"
+    Value: !Ref AddVMIFunction
+  
+  AddVMIFunctionArn:
+    Description: "Add VMI Nash GA Variable Lambda Function ARN"
+    Value: !GetAtt AddVMIFunction.Arn

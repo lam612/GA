@@ -1,0 +1,12 @@
+
+{
+  "name": "VMI_Model",
+  "description": "VMI model : OPT profit for VMI",
+  "version": "1.0.0",
+  "license": "MIT",
+  "scripts": {
+    "build": "sam build --use-container -t template.yaml",
+    "package": "sam package --region us-east-1 --profile Law --debug --s3-bucket aws-vmi-nash-ga --output-template-file packaged.yaml",
+    "deploy": "sam deploy -g --profile Law --template-file packaged.yaml --stack-name vmi-db-stack --s3-bucket aws-vmi-nash-ga"
+  }
+}

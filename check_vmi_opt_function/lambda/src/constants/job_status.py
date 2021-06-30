@@ -1,0 +1,5 @@
+class JobStatus:
+    CREATED = 'CREATED'
+    RUNNING = 'RUNNING'
+    SUCCEED = 'SUCCEED'
+    FAILED = 'FAILED'

@@ -1,0 +1,15 @@
+
+{
+  "name": "VMI_Model",
+  "description": "VMI model : OPT profit for VMI",
+  "version": "1.0.0",
+  "license": "MIT",
+  "scripts": {
+    "build": "sam build --use-container -t template.yaml",
+    "validate": "sam validate --debug -t template.yaml",
+    "invoke": "sam local invoke --docker-network host --env-vars env.json -e",
+    "api": "sam local start-api -t template.yaml --docker-network host --env-vars env.json",
+    "package": "sam package --region us-east-1 --profile Law --debug --s3-bucket aws-vmi-nash-ga --output-template-file packaged.yaml",
+    "deploy": "sam deploy -g --profile Law --template-file packaged.yaml --s3-bucket aws-vmi-nash-ga --stack-name vmi-check-opt"
+  }
+}

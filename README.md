@@ -24,41 +24,13 @@ awslocal <servise-name> create-<service-resource> --cli-input-json file://<servi
 Build DynamoDB in local
 
 ```bash
-awslocal dynamodb create-table --cli-input-json file://common_resources/localstack/dynamoDB.json
-aws --endpoint-url=http://localhost:4566 dynamodb create-table --cli-input-json file://common_resources/localstack/dynamoDB.json
+awslocal dynamodb create-table --cli-input-json file://dynamoDB.json
+aws --endpoint-url=http://localhost:4566 dynamodb create-table --cli-input-json file://dynamoDB.json
+```
 
+Build DynamoDB in AWS
 aws --profile <your-aws-profile-name> dynamodb create-table --cli-input-json file://product_demand/model/dynamoDB.json
-aws --profile Law dynamodb create-table --cli-input-json file://product_demand/model/dynamoDB.json
-```
-
-Build S3 in local
-
-```
-awslocal s3api create-bucket --bucket aws-sam-cli-gr
-aws --endpoint-url=http://localhost:4566 s3api create-bucket --bucket aws-sam-cli-gr
-```
-
-View Localstack S3 file
-
-```bash
-aws --endpoint-url=http://localhost:4566 s3api list-objects --bucket aws-sam-cli-gr
-```
-
-http://localhost:4566/<backet-name>/<s3-file-path>
-
-```browser web
-http://localhost:4566/aws-sam-cli-gr/data/demand.csv
-```
-
-aws --endpoint-url=http://localhost:4566 s3 cp <file_path> s3://aws-sam-cli-gr/<file-path>
-```Upload file
-# Upload csv data
-aws --endpoint-url=http://localhost:4566 s3 cp ./data/demand.csv s3://aws-sam-cli-gr/data/demand.csv
-aws --profile Law s3 cp ./data/demand.csv s3://aws-sam-cli-gr/data/demand.csv
-
-# Upload sav model
-aws --endpoint-url=http://localhost:4566 s3 cp ./model/demand.sav s3://aws-sam-cli-gr/model/demand.sav
-aws --profile Law  s3 cp ./model/demand.sav s3://aws-sam-cli-gr/model/demand.sav
+aws --profile Law dynamodb create-table --cli-input-json file://dynamoDB.json
 ```
 
 ## To build application:
@@ -96,33 +68,26 @@ sam local start-api -t template.yaml --docker-network host --env-vars env.json
 ## Fetch, tail, and filter Lambda function logs
 
 ```bash
-sam logs -n VideoDLFunction --stack-name vidClip --tail
+sam logs -n VMINashGASt --stack-name vmiNashGa --tail
 ```
 
 ## Invoke lambda
 
 Run functions locally and invoke them with the `sam local invoke` command.
 
-check_dl_job_function
+get_nash_ga_opt_function
 
 ```bash
 sam local invoke --docker-network host --env-vars env.json -e lambda/events/event.case_<test case>.json
 ```
 
-```
-# video_dl_function
-sam local start-lambda --docker-network host --debug --env-vars env.json
-
-sam local invoke --docker-network host --env-vars env.json -e lambda/events/event.case_1.json
-```
-
 ## Deploy API
 ```bash
-aws --profile Law s3api create-bucket --bucket aws-sam-cli-gr --region us-east-1
+aws --profile <your-profile-name> s3api create-bucket --bucket aws-vmi-nash-ga --region us-east-1
 
-sam package --region us-east-1 --profile Law --debug --s3-bucket aws-sam-cli-gr --output-template-file packaged.yaml
+sam package --region us-east-1 --profile <your-profile-name> --debug --s3-bucket aws-vmi-nash-ga --output-template-file packaged.yaml
 
-sam deploy -g --profile Law --capabilities CAPABILITY_AUTO_EXPAND CAPABILITY_IAM --s3-bucket --s3-bucket aws-sam-cli-gr ParameterKey=Stage,ParameterValue=prd --debug --confirm-changeset --stack-name prd-predict-demand
+sam deploy -g --profile <your-profile-name> --capabilities CAPABILITY_AUTO_EXPAND CAPABILITY_IAM --s3-bucket aws-vmi-nash-ga ParameterKey=Stage,ParameterValue=prd,ParameterKey=ModelPath,ParameterValue=src/data/demand.json,ParameterKey=DataPath,ParameterValue=/tmp/data.json --debug --confirm-changeset --stack-name vmi-opt
 ```
 
 ## Unit tests
@@ -148,7 +113,5 @@ python -m pytest --cov-report html --cov=src/ tests/
 To delete the sample application that you created, use the AWS CLI. Assuming you used your project name for the stack name, you can run the following:
 
 ```bash
-aws cloudformation delete-stack --stack-name vidClip
+aws cloudformation delete-stack --stack-name vmiNashGa
 ```
-
-]
