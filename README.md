@@ -62,7 +62,7 @@ curl http://localhost:3000/
 To map SAM with localstack
 
 ```bash
-sam local start-api -t template.yaml --docker-network host --env-vars env.json
+sam local start-api -t template.yaml --env-vars env.json
 ```
 
 ## Fetch, tail, and filter Lambda function logs
@@ -78,7 +78,7 @@ Run functions locally and invoke them with the `sam local invoke` command.
 get_nash_ga_opt_function
 
 ```bash
-sam local invoke --docker-network host --env-vars env.json -e lambda/events/event.case_<test case>.json
+sam local invoke --env-vars env.json -e lambda/events/event.case_<test case>.json
 ```
 
 ## Deploy API

@@ -5,7 +5,7 @@ import traceback
 import logging
 import random
 from copy import deepcopy
-from ..daos import RetailerDao, ManufacturerDao, GADao, NashDao
+from ..daos import RetailerDao, ManufacturerDao, NashDao
 from .manufacturer_service import ManufacturerService
 from .pre_demand_service import PredictDemandModelService
 from ..constants import CommonConfig
@@ -17,7 +17,6 @@ logging.basicConfig(
 class GAService:
     def __init__(self, player_id, strategy):
         self.logger = logging.getLogger(__name__)
-        self.ga_dao = GADao()
         self.nash_dao = NashDao()
         self.pre_demand = PredictDemandModelService()
         self.retailer_dao = RetailerDao()
@@ -71,7 +70,7 @@ class GAService:
             else:
                 A = random.randrange(1, CommonConfig.MAX_A)
                 cp_list = [random.randrange(
-                    material_cost, p * 0.95) for _ in range(self.mf_dao.NUM_OF_RETAILERS)]
+                    int(material_cost), int(p * 0.95)) for _ in range(self.mf_dao.NUM_OF_RETAILERS)]
 
             if self.pre_demand.get_total_predict(A, a_list, cp_list) < self.mf_dao.P:
                 return [A, a_list, cp_list]

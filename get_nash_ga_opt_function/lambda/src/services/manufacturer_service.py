@@ -110,7 +110,7 @@ class ManufacturerService:
     def get_TDC_M(self):
         material_cost = self.mf_dao.materials_cost
         direct_cost_per_unit = material_cost + self.M_p + self.M_s
-        TDC_M = self.total_demand * direct_cost_per_unit
+        TDC_M = self.total_demand * direct_cost_per_unit * self.mf_dao.p_rate
         return round(TDC_M, 2)
 
     def get_TIDC_M(self):
@@ -129,8 +129,9 @@ class ManufacturerService:
         TTC_r = 0
         self.CT_r = []
         for material in self.materials.values():
-            T_fee = self.total_demand * material["M"] * material["T_r"]
-            CT_r = round(math.sqrt(material["S_r"] / T_fee), 2)
+            T_fee = self.total_demand * \
+                material["M"] * material["T_r"] * self.mf_dao.p_rate
+            CT_r = round(math.sqrt(material["S_r"] / T_fee), 4)
             self.CT_r.append(CT_r)
             TTC_r += material["S_r"] / CT_r + T_fee * CT_r
         return round(TTC_r, 2)
@@ -139,17 +140,18 @@ class ManufacturerService:
         TIC = 0
         for material in self.materials.values():
             TIC += (material["n"] + 1) * self.total_demand * \
-                material["M"] * material["H_r"] / 2
+                material["M"] * material["H_r"] / 2 * self.mf_dao.p_rate
         return round(TIC, 2)
 
     def get_TTC_fp(self):
-        T_fee = self.total_demand * self.T_p
+        T_fee = self.total_demand * self.T_p * (1 + self.mf_dao.L_factory)
         self.CT_fp = math.sqrt(self.S_p / T_fee)
         TTC_fp = round(self.S_p / self.CT_fp + T_fee * self.CT_fp, 2)
         return TTC_fp
 
     def get_TIC_fp(self):
-        TIC_fp = round(self.total_demand * self.H_p, 2)
+        TIC_fp = round(self.total_demand * self.H_p *
+                       (1 + self.mf_dao.L_factory), 2)
         return TIC_fp
 
     def get_TTC_b(self):

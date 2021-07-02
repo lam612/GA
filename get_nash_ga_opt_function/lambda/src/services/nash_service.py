@@ -5,7 +5,7 @@ import traceback
 import logging
 import random
 from copy import deepcopy
-from ..daos import ManufacturerDao, NashDao, GADao
+from ..daos import ManufacturerDao, NashDao
 from .ga_service import GAService, ManufacturerService
 from .pre_demand_service import PredictDemandModelService
 from .vmi_val_service import VMIValService
@@ -26,7 +26,6 @@ class NashService:
 
     def init_dao(self):
         self.nash_dao = NashDao()
-        self.ga_dao = GADao()
         self.mf_dao = ManufacturerDao()
         self.mf_service = ManufacturerService()
         self.pre_demand = PredictDemandModelService()
@@ -71,7 +70,7 @@ class NashService:
             material_cost = self.mf_dao.materials_cost
             p = self.mf_dao.p
             cp_list = [random.randrange(
-                material_cost, p * 0.95) for _ in range(self.mf_dao.NUM_OF_RETAILERS)]
+                int(material_cost), int(p * 0.95)) for _ in range(self.mf_dao.NUM_OF_RETAILERS)]
 
             a_list = [random.randrange(1, CommonConfig.MAX_a)
                       for _ in range(self.mf_dao.NUM_OF_RETAILERS)]
@@ -101,14 +100,14 @@ class NashService:
                             for strategy in self.nash_strategy]
             nash_strategy_id = fitness_list.index(max(fitness_list))
             nash_strategy = self.nash_strategy[nash_strategy_id]
-            self.vmi_val_service.update_item(
-                vmi_id, JobStatus.FAILED, json.dumps(nash_strategy), json.dumps(self.nash_strategy))
+            # self.vmi_val_service.update_item(
+            #     vmi_id, JobStatus.FAILED, json.dumps(nash_strategy), json.dumps(self.nash_strategy))
 
         print("[A] {}\n[a] {}\n[S] {}\n[F] {}\n[D] {}\n[P] {}\n".format(
             A, cp, a, fitness, demand, profit))
         process_time_secs = round(
             900 - context.get_remaining_time_in_millis()/1000, 2)
-        print("[EVENT] {} {}".format(vmi_id, process_time_secs))
+        print("[EVENT] {} {}".format(vmi_id, process_time_secs / 1000 / 60))
 
         responce = {
             "process": process_time_secs,
