@@ -16,17 +16,18 @@ class ManufacturerDao:
         self.S_p = mf_info["transport"]["S_p"]
         self.T_p = mf_info["transport"]["T_p"]
         self.H_p = mf_info["transport"]["H_p"]
-        self.p = mf_info["product"]["p"]
-        self.M_p = mf_info["product"]["M_p"]
-        self.M_s = mf_info["product"]["M_s"]
-        self.P = mf_info["product"]["P"]
-        self.C = mf_info["product"]["C"]
+        self.M_p = mf_info["transport"]
+        self.P = mf_info["info"]["P"]
+        self.M_p = mf_info["info"]["M_p"]
+        self.M_s = mf_info["info"]["M_s"]
         self.materials = mf_info["materials"]
         self.L_farm = mf_info["lost"]["L_farm"]
         self.L_factory = mf_info["lost"]["L_factory"]
+        self.p = [retailer["products"]
+                  for _, retailer in vmi_data["retailer"].items()]
         self.p_rate = 1 + self.L_farm + self.L_factory
-        self.NUM_OF_MATERIALS = len(self.materials)
         self.NUM_OF_RETAILERS = len(vmi_data["retailer"])
+        self.NUM_OF_PRODUCT = len(self.p)
         self.materials_cost = self.get_material_cost()
         self.r_ids = list(vmi_data["retailer"].keys())
 

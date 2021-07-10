@@ -29,8 +29,8 @@ class VMIValService:
         self.dl_function_name = os.environ['FUNCTION_NAME']
 
     def process(self, vmi_val):
-        id_json = json.dumps(vmi_val)
-        id = hashlib.md5(id_json.encode("utf-8")).hexdigest()
+        vmi_val_string = json.dumps(vmi_val)
+        id = hashlib.md5(vmi_val_string.encode("utf-8")).hexdigest()[:5]
         response = self.db.query_item(id)
         print("[+] Response : {}".format(response))
         if response:
@@ -40,7 +40,7 @@ class VMIValService:
             }
         else:
             try:
-                response = self.db.put_item(id, vmi_val)
+                response = self.db.put_item(id, vmi_val_string)
                 if os.getenv('LAMBDA_ENDPOINT_URL', None) is not None and os.getenv('LAMBDA_ENDPOINT_URL', None).strip() != 'None':
                     log_type = 'Tail'
                 else:

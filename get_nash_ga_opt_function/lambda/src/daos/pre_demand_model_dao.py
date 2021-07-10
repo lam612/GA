@@ -13,8 +13,6 @@ class PredictDemandModelDao:
         self.model_path = os.getenv(
             "MODEL_PATH", "src/data/demand.json")
         self.model = self.get_model_variables()
-        self.coef = self.model['coef']
-        self.intercept = self.model['intercept']
 
     def get_model_variables(self):
         with open(self.model_path, 'r') as fp:

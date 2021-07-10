@@ -39,7 +39,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: VMI-Add-Function
-      CodeUri: s3://aws-vmi-nash-ga/2c1821b6334b43e090f2141634e0c42d
+      CodeUri: s3://aws-vmi-nash-ga/ab001ae23667e963f23bc6c1423ead02
       Role: arn:aws:iam::988603520616:role/lambda_vmi
       Handler: src.app.lambda_handler
       Runtime: python3.8
@@ -74,7 +74,7 @@ Resources:
           REGION:
             Ref: Region
       Events:
-        GetOptProfitRequest:
+        AddValApi:
           Type: Api
           Properties:
             RestApiId:

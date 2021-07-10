@@ -29,11 +29,20 @@ Globals:
     MemorySize: 128
     Runtime: python3.8
 Resources:
+  GetOptProfitRequest:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: opt-vmi-api
+      StageName:
+        Ref: Stage
+      Cors:
+        AllowMethods: '''GET, OPTIONS'''
+        AllowOrigin: '''*'''
   VMINashGAFunction:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: VMI-Get-Function
-      CodeUri: s3://aws-vmi-nash-ga/7da6f183a5e597cc2babc9f39ca4f0bd
+      CodeUri: s3://aws-vmi-nash-ga/4a8f3a1c72fcb003de55cde6c65e8bf7
       Handler: src.app.lambda_handler
       Role: arn:aws:iam::988603520616:role/lambda_vmi
       Runtime: python3.8
@@ -64,6 +73,14 @@ Resources:
             Ref: VMINashGATable
           DATA_PATH:
             Ref: DataPath
+      Events:
+        GetOptProfitRequest:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: GetOptProfitRequest
+            Path: /opt-vmi
+            Method: GET
 Outputs:
   VMINashGAFunctionName:
     Description: Optimal VMI Profit Lambda Function Name

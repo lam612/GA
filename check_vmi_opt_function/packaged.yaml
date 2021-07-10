@@ -36,7 +36,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: VMI-Check-Function
-      CodeUri: s3://aws-vmi-nash-ga/c7a14f0c8aeec0e38ab80677825c6bb2
+      CodeUri: s3://aws-vmi-nash-ga/96eaee4b3ce160a44e8d18faf61d26d3
       Role: arn:aws:iam::988603520616:role/lambda_vmi
       Handler: src.app.lambda_handler
       Runtime: python3.8
@@ -64,7 +64,7 @@ Resources:
           TABLE_NAME:
             Ref: VMINashGATable
       Events:
-        GetOptProfitRequest:
+        CheckValApi:
           Type: Api
           Properties:
             RestApiId:

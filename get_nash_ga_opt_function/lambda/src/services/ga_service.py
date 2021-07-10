@@ -54,24 +54,24 @@ class GAService:
 
     def gen_random_val(self):
         material_cost = self.mf_dao.materials_cost
-        p = self.mf_dao.p
+        p_e = CommonConfig.PRODUCT_EFFECT
         id = 1
         while True:
             a_list = self.pre_r_ads_list[:]
             cp_list = self.pre_m_cp_list[:]
+            A = self.pre_m_ads[:]
 
             # Random retailer variables
             if self.player_id != self.nash_dao.mf_id:
-                A = self.pre_m_ads
                 tmp_r_ads = random.randrange(1, CommonConfig.MAX_a)
                 a_list[self.player_idx] = tmp_r_ads
 
             # Random manufacturer variables
             else:
-                A = random.randrange(1, CommonConfig.MAX_A)
+                A = [random.randrange(1, CommonConfig.MAX_A)
+                     for _ in range(self.mf_dao.NUM_OF_RETAILERS)]
                 cp_list = [random.randrange(
-                    int(material_cost), int(p * 0.95)) for _ in range(self.mf_dao.NUM_OF_RETAILERS)]
-
+                    int(material_cost) * p_e[idx], int(price * 0.95)) for idx, price in enumerate(CommonConfig.PRODUCT_PRICE)]
             if self.pre_demand.get_total_predict(A, a_list, cp_list) < self.mf_dao.P:
                 return [A, a_list, cp_list]
             id += 1
@@ -112,6 +112,8 @@ class GAService:
                 self.mf_list[idx] = deepcopy(self.mf_list[transfrom_mf_idx])
 
     def crossover(self):
+        num_r = self.mf_dao.NUM_OF_RETAILERS  # A, a
+        num_p = self.mf_dao.NUM_OF_PRODUCT  # cp
         for _ in range(self.c_size):
             mf_L = random.randrange(CommonConfig.POPULATION_NUMBER)
             mf_R = random.randrange(CommonConfig.POPULATION_NUMBER)
@@ -130,13 +132,10 @@ class GAService:
                     tmp_gen = [mf_gen_L[i] * sieve[i] + mf_gen_R[i]
                                * not_sieve[i] for i in range(gen_len)]
                     # [A1, a1, cp1, a2, cp2, a2, cp2] --> A & [a1, a2, a3] & [cp1, cp2, cp3]
-                    A = tmp_gen[0]
-                    a_list = []
-                    for i in range(self.mf_dao.NUM_OF_RETAILERS):
-                        a_list.append(tmp_gen[1 + i * 2])
-                    cp_list = []
-                    for i in range(self.mf_dao.NUM_OF_RETAILERS):
-                        cp_list.append(tmp_gen[2 + i * 2])
+                    # [A1, A2, A3, cp1, cp2, cp3, a1, a2, a3]
+                    A = tmp_gen[0:num_r]
+                    a_list = tmp_gen[num_r: num_r + num_p]
+                    cp_list = tmp_gen[num_r + num_p: num_r * 2 + num_p]
 
                     if self.pre_demand.get_total_predict(A, a_list, cp_list) < self.mf_dao.P:
                         cur_mf.set_m_val(A, cp_list, a_list)
