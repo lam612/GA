@@ -2,6 +2,7 @@ import os
 import json
 import traceback
 import logging
+from ..constants import CommonConfig
 
 logging.basicConfig(
     format='[%(asctime)s] [%(levelname)s] %(message)s', level=logging.INFO)
@@ -15,7 +16,7 @@ class NashDao:
         self.nash = {}
         self.mf_id = ""
         self.alpha = 0
-        self.beta = 0
+        self.beta = CommonConfig.NASH_GA_BETA
         self.get_nash_variables()
 
     def get_nash_variables(self):
@@ -23,4 +24,3 @@ class NashDao:
             info = json.load(fp)["nash"]
         self.nash = info["weight"]
         self.mf_id = info["mf_id"]
-        self.beta = info["beta"]

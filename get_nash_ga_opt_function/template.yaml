@@ -36,6 +36,15 @@ Globals:
     Runtime: python3.8
 
 Resources:
+  GetOptProfitRequest:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: "opt-vmi-api"
+      StageName: !Ref Stage
+      Cors:
+        AllowMethods: "'GET, OPTIONS'"
+        AllowOrigin: "'*'"
+
   VMINashGAFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -67,6 +76,13 @@ Resources:
           MODEL_PATH: !Ref ModelPath
           TABLE_NAME: !Ref VMINashGATable
           DATA_PATH: !Ref DataPath
+      Events:
+        GetOptProfitRequest:
+          Type: Api
+          Properties:
+            RestApiId: !Ref GetOptProfitRequest
+            Path: /opt-vmi
+            Method: GET
 
 Outputs:
   VMINashGAFunctionName:

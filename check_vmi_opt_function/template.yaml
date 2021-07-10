@@ -67,7 +67,7 @@ Resources:
         Variables:
           TABLE_NAME: !Ref VMINashGATable
       Events:
-        GetOptProfitRequest:
+        CheckValApi:
           Type: Api
           Properties:
             RestApiId: !Ref CheckValApi

@@ -11,11 +11,12 @@ class RetailerDao:
     def __init__(self):
         self.data_path = os.getenv(
             'DATA_PATH', '/tmp/data.json')
-        self.retailers = self.get_retailer_variables()
+        self.retailers = {}
+        self.load_retailer_variables()
 
-    def get_retailer_variables(self):
+    def load_retailer_variables(self):
         with open(self.data_path, 'r') as fp:
-            return json.load(fp)["retailer"]
+            self.retailers = json.load(fp)["retailer"]
 
     def get_retailer(self, id):
         return self.retailers[id]

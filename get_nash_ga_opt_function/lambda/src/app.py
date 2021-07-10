@@ -13,15 +13,17 @@ def lambda_handler(event, context):
     service = NashService()
 
     try:
-        vmi_id = event['vmi_id']
+        vmi_id = event.get('vmi_id', None)
+        if vmi_id == None:
+            vmi_id = event["queryStringParameters"]['vmi_id']
     except KeyError as e:
-        logger.error('vmi_id doesn\'t exist')
+        logger.error('VMI ID doesn\'t exist')
         logger.error(str(e))
         traceback.print_exc()
         return {
             "statusCode": 400,
             "body": json.dumps({
-                "message": "Invalid input: vmi_id Error"
+                "message": "Invalid VMI ID"
             })
         }
 

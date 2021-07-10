@@ -75,7 +75,7 @@ Resources:
           FUNCTION_NAME: !Ref VMINashGAFunctionName
           REGION: !Ref Region
       Events:
-        GetOptProfitRequest:
+        AddValApi:
           Type: Api
           Properties:
             RestApiId: !Ref AddValApi

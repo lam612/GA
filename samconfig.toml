@@ -1,0 +1,12 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "vmi-opt"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-95dvdp8saoom"
+s3_prefix = "vmi-opt"
+region = "us-east-1"
+profile = "Law"
+confirm_changeset = true
+capabilities = "CAPABILITY_AUTO_EXPAND CAPABILITY_IAM"
+parameter_overrides = "Stage=\"dev\" Region=\"us-east-1\""

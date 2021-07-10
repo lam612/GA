@@ -5,9 +5,10 @@ import traceback
 import logging
 import random
 from copy import deepcopy
-from ..daos import RetailerDao, ManufacturerDao, GADao, NashDao
+from ..daos import RetailerDao, ManufacturerDao, NashDao
 from .manufacturer_service import ManufacturerService
 from .pre_demand_service import PredictDemandModelService
+from ..constants import CommonConfig
 
 logging.basicConfig(
     format='[%(asctime)s] [%(levelname)s] %(message)s', level=logging.INFO)
@@ -16,19 +17,19 @@ logging.basicConfig(
 class GAService:
     def __init__(self, player_id, strategy):
         self.logger = logging.getLogger(__name__)
-        self.ga_dao = GADao()
         self.nash_dao = NashDao()
         self.pre_demand = PredictDemandModelService()
         self.retailer_dao = RetailerDao()
         self.mf_dao = ManufacturerDao()
         self.mf_list = []
         self.nash_solution = []
-        self.g_num = self.ga_dao.g_num
-        self.p_size = self.ga_dao.p_size
-        self.s_size = int(self.p_size * (1 - self.ga_dao.s_rate))
-        self.c_size = int(self.p_size * (1 - self.ga_dao.c_rate))
-        self.m_size = int(self.p_size * (1 - self.ga_dao.m_rate))
-        self.generation_fitness = [0] * self.p_size
+        self.s_size = int(CommonConfig.POPULATION_NUMBER *
+                          (1 - CommonConfig.SELECTION_RATE))
+        self.c_size = int(CommonConfig.POPULATION_NUMBER *
+                          (1 - CommonConfig.CROSSOVER_RATE))
+        self.m_size = int(CommonConfig.POPULATION_NUMBER *
+                          (1 - CommonConfig.MUTATION_RATE))
+        self.generation_fitness = [0] * CommonConfig.POPULATION_NUMBER
         self.player_id = player_id
         self.player_idx = list(self.nash_dao.nash.keys()).index(player_id) - 1
         self.pre_m_ads = strategy[0]
@@ -37,7 +38,7 @@ class GAService:
 
     def optimal(self):
         self.create_population()
-        for g_idx in range(self.g_num):
+        for _ in range(CommonConfig.GENERATION_NUMBER):
             self.selection()
             self.crossover()
             self.mutations()
@@ -53,30 +54,30 @@ class GAService:
 
     def gen_random_val(self):
         material_cost = self.mf_dao.materials_cost
-        p = self.mf_dao.p
+        p_e = CommonConfig.PRODUCT_EFFECT
         id = 1
         while True:
             a_list = self.pre_r_ads_list[:]
             cp_list = self.pre_m_cp_list[:]
+            A = self.pre_m_ads[:]
 
             # Random retailer variables
             if self.player_id != self.nash_dao.mf_id:
-                A = self.pre_m_ads
-                tmp_r_ads = random.randrange(1, self.ga_dao.MAX_a)
+                tmp_r_ads = random.randrange(1, CommonConfig.MAX_a)
                 a_list[self.player_idx] = tmp_r_ads
 
             # Random manufacturer variables
             else:
-                A = random.randrange(1, self.ga_dao.MAX_A)
+                A = [random.randrange(1, CommonConfig.MAX_A)
+                     for _ in range(self.mf_dao.NUM_OF_RETAILERS)]
                 cp_list = [random.randrange(
-                    material_cost, p * 0.95) for _ in range(self.mf_dao.NUM_OF_RETAILERS)]
-
+                    int(material_cost) * p_e[idx], int(price * 0.95)) for idx, price in enumerate(CommonConfig.PRODUCT_PRICE)]
             if self.pre_demand.get_total_predict(A, a_list, cp_list) < self.mf_dao.P:
                 return [A, a_list, cp_list]
             id += 1
 
     def create_population(self):
-        for i in range(self.p_size):
+        for i in range(CommonConfig.POPULATION_NUMBER):
             mf = ManufacturerService()
             [A, a_list, cp_list] = self.gen_random_val()
             mf.set_m_val(A, cp_list, a_list)
@@ -106,13 +107,16 @@ class GAService:
 
         for idx, fitness in enumerate(self.generation_fitness):
             if fitness < threshold:
-                transfrom_mf_idx = random.randrange(self.p_size)
+                transfrom_mf_idx = random.randrange(
+                    CommonConfig.POPULATION_NUMBER)
                 self.mf_list[idx] = deepcopy(self.mf_list[transfrom_mf_idx])
 
     def crossover(self):
+        num_r = self.mf_dao.NUM_OF_RETAILERS  # A, a
+        num_p = self.mf_dao.NUM_OF_PRODUCT  # cp
         for _ in range(self.c_size):
-            mf_L = random.randrange(self.p_size)
-            mf_R = random.randrange(self.p_size)
+            mf_L = random.randrange(CommonConfig.POPULATION_NUMBER)
+            mf_R = random.randrange(CommonConfig.POPULATION_NUMBER)
             mf_parent = [mf_L, mf_R]
 
             mf_gen_L = self.mf_list[mf_L].get_m_gen()
@@ -128,13 +132,10 @@ class GAService:
                     tmp_gen = [mf_gen_L[i] * sieve[i] + mf_gen_R[i]
                                * not_sieve[i] for i in range(gen_len)]
                     # [A1, a1, cp1, a2, cp2, a2, cp2] --> A & [a1, a2, a3] & [cp1, cp2, cp3]
-                    A = tmp_gen[0]
-                    a_list = []
-                    for i in range(self.mf_dao.NUM_OF_RETAILERS):
-                        a_list.append(tmp_gen[1 + i * 2])
-                    cp_list = []
-                    for i in range(self.mf_dao.NUM_OF_RETAILERS):
-                        cp_list.append(tmp_gen[2 + i * 2])
+                    # [A1, A2, A3, cp1, cp2, cp3, a1, a2, a3]
+                    A = tmp_gen[0:num_r]
+                    a_list = tmp_gen[num_r: num_r + num_p]
+                    cp_list = tmp_gen[num_r + num_p: num_r * 2 + num_p]
 
                     if self.pre_demand.get_total_predict(A, a_list, cp_list) < self.mf_dao.P:
                         cur_mf.set_m_val(A, cp_list, a_list)
@@ -142,7 +143,7 @@ class GAService:
 
     def mutations(self):
         for _ in range(self.m_size):
-            mut_mf_id = random.randrange(self.p_size)
+            mut_mf_id = random.randrange(CommonConfig.POPULATION_NUMBER)
             while True:
                 [A, a_list, cp_list] = self.gen_random_val()
                 if self.pre_demand.get_total_predict(A, a_list, cp_list) < self.mf_dao.P:

@@ -1,0 +1,88 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: SAM Template for VMI
+Parameters:
+  Stage:
+    Type: String
+    Description: Environment
+    Default: dev
+    AllowedValues:
+    - dev
+    - stg
+    - prd
+    ConstraintDescription: must specify dev or stg or prd.
+  ModelPath:
+    Type: String
+    Default: src/data/demand.json
+  DataPath:
+    Type: String
+    Default: /tmp/data.json
+  Region:
+    Type: String
+    Default: us-east-1
+  VMINashGATable:
+    Type: String
+    Default: VMI_VARIABLE
+Globals:
+  Function:
+    Timeout: 900
+    MemorySize: 128
+    Runtime: python3.8
+Resources:
+  GetOptProfitRequest:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: opt-vmi-api
+      StageName:
+        Ref: Stage
+      Cors:
+        AllowMethods: '''GET, OPTIONS'''
+        AllowOrigin: '''*'''
+  VMINashGAFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: VMI-Get-Function
+      CodeUri: s3://aws-vmi-nash-ga/4a8f3a1c72fcb003de55cde6c65e8bf7
+      Handler: src.app.lambda_handler
+      Role: arn:aws:iam::988603520616:role/lambda_vmi
+      Runtime: python3.8
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: VMINashGATable
+      - Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action:
+          - iam:CreateRole
+          - iam:PutRolePolicy
+          - lambda:CreateFunction
+          - lambda:InvokeAsync
+          - lambda:InvokeFunction
+          - lambda:UpdateAlias
+          - lambda:CreateAlias
+          - lambda:GetFunctionConfiguration
+          - lambda:AddPermission
+          - lambda:UpdateFunctionCod
+          Resource: '*'
+      Environment:
+        Variables:
+          MODEL_PATH:
+            Ref: ModelPath
+          TABLE_NAME:
+            Ref: VMINashGATable
+          DATA_PATH:
+            Ref: DataPath
+      Events:
+        GetOptProfitRequest:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: GetOptProfitRequest
+            Path: /opt-vmi
+            Method: GET
+Outputs:
+  VMINashGAFunctionName:
+    Description: Optimal VMI Profit Lambda Function Name
+    Value:
+      Ref: VMINashGAFunction
